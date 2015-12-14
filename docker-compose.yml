@@ -1,0 +1,19 @@
+#
+# Starts the application container as well as the MongoDB backend
+#
+mongo:  
+ image: mongo:3.1
+ ports:
+  - "27017:27017"
+
+backend:
+ environment:
+  MONGO_URL: FOO
+  SERVICE_TAGS: rest
+ build: .
+ links:
+  - mongo
+ ports:
+  - 8081:8080
+ environment:
+  - "MONGO_URL=mongo:27017"
