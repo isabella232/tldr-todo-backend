@@ -1,0 +1,96 @@
+{
+  "id": "/todo",
+  "groups": [
+    {
+      "id": "/todo/backend",
+      "apps": [
+         { 
+            "id": "/todo/backend/service",
+            "env": {
+                "MONGO_URL": "todobackendmongo.marathon.l4lb.thisdcos.directory:27017"
+            },
+            "instances": 1,
+            "cpus": 1,
+            "mem": 512,
+            "disk": 0,
+            "gpus": 0,
+            "maxLaunchDelaySeconds": 3600,
+            "container": {
+                "docker": {
+                "image": "tldr/todo-backend",
+                "forcePullImage": false,
+                "privileged": false
+                }
+            },
+            "healthChecks": [
+                {
+                "protocol": "HTTP",
+                "portIndex": 0,
+                "gracePeriodSeconds": 300,
+                "intervalSeconds": 60,
+                "timeoutSeconds": 20,
+                "maxConsecutiveFailures": 3,
+                "ignoreHttp1xx": false
+                }
+            ],
+            "portDefinitions": [
+                {
+                "port": 8080,
+                "protocol": "tcp",
+                "labels": {
+                    "VIP_0": "/todo/backend/service:8080"
+                }
+            }],
+            "requirePorts": false                          
+         },
+         {
+            "id": "/todo/backend/mongo",
+            "instances": 1,
+            "cpus": 1,
+            "mem": 512,
+            "disk": 0,
+            "gpus": 0,
+            "container": {
+                "docker": {
+                "image": "mongo:3.1",
+                "forcePullImage": true,
+                "privileged": false,
+                "portMappings": [
+                    {
+                    "containerPort": 27017,
+                    "protocol": "tcp"
+                    }
+                ]
+                },
+                "type": "DOCKER"
+            },
+            "healthChecks": [
+                {
+                "protocol": "TCP",
+                "port": 27017,
+                "gracePeriodSeconds": 300,
+                "intervalSeconds": 60,
+                "timeoutSeconds": 20,
+                "maxConsecutiveFailures": 3
+                }
+            ],
+            "readinessChecks": null,
+            "dependencies": null,
+            "upgradeStrategy": {
+                "minimumHealthCapacity": 0,
+                "maximumOverCapacity": 0
+            },
+            "portDefinitions": [
+                {
+                "port": 27017,
+                "protocol": "tcp",
+                "labels": {
+                    "VIP_0": "/todo/backend/mongo:27017"
+                }                
+            }],
+            "requirePorts": false
+            }
+       ]
+    }
+  ]
+}
